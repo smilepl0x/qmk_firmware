@@ -48,3 +48,40 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       )
 
 };
+
+#ifdef ST7789_NUM_DEVICES
+#include "unispace17.qff.h"
+#include "../../display.h"
+
+extern painter_device_t display;
+
+static bool draw_layer_action(keyrecord_t *record, char *layerstr) {
+      const painter_font_handle_t font = qp_load_font_mem(font_unispace17);
+      const char * layer_0 = "Layer 0";
+
+      if (record->event.pressed) {
+            int16_t width = qp_textwidth(font, layerstr);
+            qp_drawtext(display, (320 - width), (240 - font->line_height), font, layerstr);
+      } else {
+            int16_t width = qp_textwidth(font, layer_0);
+            qp_drawtext(display, (320 - width), (240 - font->line_height), font, layer_0);
+      }
+
+      qp_close_font(font);
+      return true;
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+      switch(keycode) {
+            case MO(1):
+                  return draw_layer_action(record, "Layer 1");
+            case MO(2):
+                  return draw_layer_action(record, "Layer 2");
+            case MO(3):
+                  return draw_layer_action(record, "Layer 3");
+            default:
+                  return true;
+      }
+};
+
+#endif

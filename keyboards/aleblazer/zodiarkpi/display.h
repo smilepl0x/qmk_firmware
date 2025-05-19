@@ -1,0 +1,1 @@
+extern painter_device_t display;
