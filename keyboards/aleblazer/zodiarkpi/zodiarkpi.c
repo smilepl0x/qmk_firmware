@@ -136,9 +136,9 @@ bool encoder_update_kb(uint8_t index, bool clockwise) {
     }
     if (index == 0) { /* First encoder */
         if (clockwise) {
-            tap_code_delay(KC_VOLD, 10);
-        } else {
             tap_code_delay(KC_VOLU, 10);
+        } else {
+            tap_code_delay(KC_VOLD, 10);
         }
     } else if (index == 1) { /* Second encoder */
         if (clockwise) {
@@ -173,15 +173,17 @@ bool encoder_update_kb(uint8_t index, bool clockwise) {
 
 #ifdef QUANTUM_PAINTER_ENABLE
 
-#include "images/ZodiarkPiLogoGC.qgf.c"
-#include "images/ZodiarkPiLogo2Green.qgf.c"
-#include "images/ZodiarkPiLogoSTpink.qgf.c"
+#include "display.h"
+#include "images/d48jsqjz.qgf.c"
+#include "images/jyw1t9xh.qgf.c"
 
-static painter_device_t display;
+
 static painter_image_handle_t image;
 
+
 // st7789 enable, comment out the following line if not using a st7789
-painter_device_t qp_st7789_make_spi_device(uint16_t panel_width, uint16_t panel_height, pin_t chip_select_pin, pin_t dc_pin, pin_t reset_pin, uint16_t spi_divisor, int spi_mode);
+// painter_device_t qp_st7789_make_spi_device(uint16_t panel_width, uint16_t panel_height, pin_t chip_select_pin, pin_t dc_pin, pin_t reset_pin, uint16_t spi_divisor, int spi_mode);
+painter_device_t display;
 // gc9a01 enable, comment out the following line if not using a gc9a01
 // painter_device_t qp_gc9a01_make_spi_device(uint16_t panel_width, uint16_t panel_height, pin_t chip_select_pin, pin_t dc_pin, pin_t reset_pin, uint16_t spi_divisor, int spi_mode);
 
@@ -198,25 +200,15 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     print("doing stuff\n");
 
 // ##st7789 screen support, comment out this section if not using a st7789 screen
-    display = qp_st7789_make_spi_device(320, 240, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, 3);
+
     if (is_keyboard_left()) {
-        qp_power(display, true);
-        } 
-    if (is_keyboard_left()) {
-        qp_init(display, QP_ROTATION_180);
-        } 
-// If using pointing device on right side, comment out following 3 lines
-        // else {
-        // qp_init(display, QP_ROTATION_0);
-        // }
-    if (is_keyboard_left()) {
-        image = qp_load_image_mem(gfx_ZodiarkPiLogoSTpink);
+        image = qp_load_image_mem(gfx_d48jsqjz);
     } 
 // If using pointing device on right side, comment out following 3 lines
-    // else {
-    //     image = qp_load_image_mem(gfx_ZodiarkPiLogoSTpink);
-    // }
-    // ##end st7789 screen support
+    else {
+        image = qp_load_image_mem(gfx_jyw1t9xh);
+    }
+    // ##end st7789 screen support5
 
     // ##gc9a01 screeen support, comment out this section if not using a gc9a01 screen
     // display = qp_gc9a01_make_spi_device(240, 240, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, 0);
@@ -244,18 +236,35 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
             qp_drawimage(display, 0, 0, image);
         } 
     // If using pointing device on right side, comment out following 3 lines
-        // else {
-        //     qp_drawimage(display, 0, 0, image);
-        // }
+        else {
+            qp_drawimage(display, 0, 0, image);
+        }
     }
 
 
     return(0);
 }
 
+void keyboard_pre_init_kb(void) {
+
+}
+
 void keyboard_post_init_kb(void)
 {
     debug_enable=true;
+    display = qp_st7789_make_spi_device(320, 240, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, 3);
+
+    if (is_keyboard_left()) {
+        qp_power(display, true);
+    }
+    if (is_keyboard_left()) {
+        qp_init(display, QP_ROTATION_270);
+    } 
+// If using pointing device on right side, comment out following 3 lines
+    else {
+        qp_init(display, QP_ROTATION_90);
+    }
+
     defer_exec(3000, deferred_init, NULL);
 }
 #endif
